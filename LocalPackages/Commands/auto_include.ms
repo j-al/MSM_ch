@@ -9,14 +9,14 @@ void proc _handle_command(array @command)
     array @aliases = array();
     int @rank = @command['rank'];
     int @source = @command['source'];
-    
+
     if (array_index_exists(@command, 'aliases'))
     {
         @aliases[] = @command['aliases'];
-    }    
-   
+    }
+
     string @sender = player();
-    
+
     # check command source
     switch (@source)
     {
@@ -58,7 +58,7 @@ void proc _handle_command(array @command)
 
 boolean proc _check_permission(string @player, int @rank, int @source = 0)
 {
-    string @uuid = if(@player == '~console', 'console', puuid());
+    string @uuid = if(@player == '~console', 'console', puuid(player(), true));
 
     switch (@source)
     {
@@ -73,7 +73,7 @@ boolean proc _check_permission(string @player, int @rank, int @source = 0)
                 return(false);
             }
     }
-    
+
     switch (@rank)
     {
         case 1:
@@ -87,15 +87,15 @@ boolean proc _check_permission(string @player, int @rank, int @source = 0)
                 return(false);
             }
         case 2:
-            if (_is_admin(@uuid, true))
+            if (_is_admin(@uuid))
             {
                 return(true);
             }
 
             return(false);
         case 3:
-            if (_is_admin(@uuid, true) &&
-                _is_super(@uuid, true))
+            if (_is_admin(@uuid) &&
+                _is_super(@uuid))
             {
                 return(true);
             }
