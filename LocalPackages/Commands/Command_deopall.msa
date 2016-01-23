@@ -1,0 +1,32 @@
+*:/deopall [$flags] [$] = >>>
+    _handle_command(array(name: 'deopall', description: 'Deop all players on the
+    server', usage: '/<command> [-s]', rank: 2, source: 0));
+
+    boolean @silent = false;
+    if ($flags)
+    {
+        if (_has_flag($flags, 's'))
+        {
+            if (!_check_permission(player(), 3))
+            {
+                msg(color(c).'You do not have permission to silence this command.');
+            }
+            else
+            {
+                @silent = true;
+            }
+        }
+    }
+
+    if (!@silent)
+    {
+        _admin_msg(player(), 'De-opping all players', false);
+    }
+
+    foreach (@p in all_players())
+    {
+        _set_op(puuid(@p, true), false);
+        tmsg(@p, _util_msg('DEOPPED'));
+    }
+<<<
+

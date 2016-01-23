@@ -97,8 +97,7 @@ boolean proc _check_permission(string @player, int @rank, int @source = 0)
 
             return(false);
         case 3:
-            if (_is_admin(@uuid) &&
-                _is_super(@uuid))
+            if (_is_admin(@uuid) && _is_super(@uuid))
             {
                 return(true);
             }
