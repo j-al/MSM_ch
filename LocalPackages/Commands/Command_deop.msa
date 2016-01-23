@@ -1,0 +1,57 @@
+*:/deop [$player] [$flags] [$] = >>>
+    _handle_command(array(name: 'deop', description: 'Deop a player.',
+    usage: '/<command> <player> [-s]', rank: 1, source: 0));
+
+    if (!$player)
+    {
+        die('/<command> <player> [-s]');
+    }
+
+    string @p = _get_player($player);
+    boolean @silent = false;
+    string @flags = '';
+    if ($flags)
+    {
+        @flags = $flags;
+    }
+
+    if (_has_flag(@flags, 's'))
+    {
+        if (!_check_permission(player(), 2))
+        {
+            msg(color(c).'You do not have permission to silence this command.');
+        }
+        else
+        {
+            @silent = true;
+        }
+    }
+
+    if (!ponline(@p))
+    {
+        if (!_check_permission(player(), 2))
+        {
+            die(color(c).'You do not have permission to deop offline players.');
+        }
+
+        if (!array_contains(get_offline_players(), @p))
+        {
+            die(_util_msg('PLAYER_NOT_FOUND'));
+        }
+
+        if (!@silent)
+        {
+            _admin_msg(player(), 'De-opping '.@p);
+        }
+        _set_op(puuid(@p, true), false);
+        die();
+    }
+
+    if (!@silent)
+    {
+        _admin_msg(player(), 'De-opping '.@p);
+    }
+    _set_op(puuid(@p, true), false);
+    tmsg(@p, _util_msg('DEOPPED'));
+<<<
+

@@ -46,6 +46,16 @@ string proc _util_msg(string @message)
             return(color(e).'You are now op!');
         case 'DEOPPED':
             return(color(e).'You are no longer op!'); 
+        case 'PLAYER_OFFLINE':
+            return(color(c).'That player is not online.');
+        case 'PLAYER_NOT_FOUND':
+            return(color(c).'Can\'t find that player. Are they offline?');
     }
+}
+
+void proc _admin_msg(string @player, string @message, boolean @grey = true)
+{
+    broadcast(if(@grey, color('7'), color('c')).'['.@player.': '.@message.
+    ']');
 }
 

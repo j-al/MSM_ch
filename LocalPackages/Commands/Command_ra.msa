@@ -2,6 +2,6 @@
     _handle_command(array(name: 'recompile', description: 'Reload the mod.',
     usage: '/<command>', rank: 2, source: 0));
 
-   sudo('/reloadaliases');
+    sudo('/reloadaliases');
 <<<
 

@@ -11,3 +11,17 @@ void proc _add_player(string @name, string @uuid, string @ip)
     store_value('players'.@uuid, @player);
 }
 
+#
+void proc _set_op(string @uuid, boolean @op)
+{
+    array @pdata = get_value('players'.@uuid);
+    @pdata['isop'] = @op;
+
+    if (ponline(@pdata['lastname']))
+    {
+        psetop(@pdata['lastname'], @op);
+    }
+
+    store_value('players'.@uuid, @pdata);
+}
+

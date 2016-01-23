@@ -36,9 +36,12 @@ void proc _handle_command(array @command)
     switch (@rank)
     {
         case 1:
-            if (!pisop())
+            if (ponline(@sender))
             {
-                die(_util_msg('NO_PERMISSION'));
+                if (!pisop())
+                {
+                    die(_util_msg('NO_PERMISSION'));
+                }
             }
         case 2:
             if (!_check_permission(@sender, 2))
@@ -102,5 +105,63 @@ boolean proc _check_permission(string @player, int @rank, int @source = 0)
 
             return(false);
     }
+}
+
+string proc _get_player(string @name, boolean @matchpartialnames = true)
+{
+    string @player = @name;
+
+    # exact match
+    if (array_contains(all_players(), @player))
+    {
+        return(@player);
+    }
+
+    try(return(player(@player)));
+
+    if (@matchpartialnames)
+    {
+        # partial name match
+        foreach (@p in all_players())
+        {
+            if (string_position(to_lower(@p), to_lower(@player)) != -1)
+            {
+                return(player(@p));
+            }
+        }
+
+        # partial nick match
+        foreach (@p in all_players())
+        {
+            if (string_position(to_lower(pinfo(@p, 4)),
+            to_lower(@player)) != -1)
+            {
+                return(player(@p));
+            }
+        }
+    }
+
+    return(@player);
+}
+
+boolean proc _has_flag(string @flags, string @flag)
+{
+    if (length(@flags) < 2 || length(@flag) == 0)
+    {
+        return(false);
+    }
+
+    if (@flags[0] != '-')
+    {
+        return(false)
+    }
+
+    array @hasflags = split('', substr(@flags, 1));
+    if (array_contains_ic(@hasflags, @flag))
+    {
+        return(true);
+    }
+
+    return(false);
 }
 
