@@ -50,6 +50,19 @@ void proc _del_admin(string @uuid, boolean @purge = false)
     clear_value('admins'.@uuid);
 }
 
+boolean proc _is_admin_ip(string @ip)
+{
+    foreach (@a in get_values('admins'))
+    {
+        if (@a['admin'] && array_contains(@a['ips'], @ip))
+        {
+            return(true);
+        }
+    }
+
+    return(false);
+}
+
 boolean proc _is_admin(string @uuid)
 {
     if (!has_value('admins'.@uuid))
