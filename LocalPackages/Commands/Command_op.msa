@@ -34,7 +34,7 @@
             die(color(c).'You do not have permission to op offline players.');
         }
 
-        if (!array_contains(get_offline_players(), @p))
+        if (!array_contains(_get_players(), @p) || @p[0] == '~')
         {
             die(_util_msg('PLAYER_NOT_FOUND'));
         }

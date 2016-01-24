@@ -11,6 +11,16 @@ void proc _add_admin(string @uuid)
     {
         array @admin = get_value('admins'.@uuid);
         @admin['admin'] = true;
+
+        # add latest IP
+        if (ponline(@admin['lastname']))
+        {
+            if (!array_contains(@admin['ips'], pinfo(@admin['lastname'], 3)))
+            {
+                @admin['ips'][] = pinfo(@admin['lastname'], 3);
+            }
+        }
+
         store_value('admins'.@uuid, @admin);
         return();
     }
@@ -21,6 +31,25 @@ void proc _add_admin(string @uuid)
     admin: true, super: false);
     store_value('admins'.@uuid, @admin);
 }
+
+void proc _del_admin(string @uuid, boolean @purge = false)
+{
+    if (!has_value('admins'.@uuid))
+    {
+        return();
+    }
+
+    array @admin = get_value('admins'.@uuid);
+    if (!@purge)
+    {
+        @admin['admin'] = false;
+        store_value('admins'.@uuid, @admin);
+        return();
+    }
+
+    clear_value('admins'.@uuid);
+}
+
 boolean proc _is_admin(string @uuid)
 {
     if (!has_value('admins'.@uuid))
