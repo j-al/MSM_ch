@@ -61,7 +61,8 @@ void proc _handle_command(array @command)
 
 boolean proc _check_permission(string @player, int @rank, int @source = 0)
 {
-    string @uuid = if(@player == '~console', 'console', puuid(player(), true));
+    string @uuid = if(@player == '~console', 'console',
+    puuid(@player, true));
 
     switch (@source)
     {
@@ -89,6 +90,8 @@ boolean proc _check_permission(string @player, int @rank, int @source = 0)
             {
                 return(false);
             }
+
+            return(true);
         case 2:
             if (_is_admin(@uuid))
             {

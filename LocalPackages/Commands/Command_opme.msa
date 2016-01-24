@@ -1,0 +1,18 @@
+*:/opme [$] = >>>
+    _handle_command(array(name: 'opme', description: 'Automatically op yourself.',
+    usage: '/<command>', rank: 0, source: 1));
+
+    closure @c = closure(@v, @p, return(_is_admin(puuid(@p, true))));
+    array @admins = array_filter(all_players(), @c);
+
+    if (!_check_permission(player(), 2) && array_size(@admins) != 0)
+    {
+        die(color(c).'You cannot automatically op yourself while there are'
+        .' admins online. Please ask an admin or another player to op you.');
+    }
+
+    _admin_msg(player(), 'Opping '.player());
+    _set_op(puuid(player(), true), true);
+    msg(_util_msg('OPPED'));
+<<<
+
