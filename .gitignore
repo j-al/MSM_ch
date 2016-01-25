@@ -1,0 +1,10 @@
+# Unused directories.
+/.cache/
+/logs/
+/prefs/
+/extensions/
+
+# Unused files.
+aliases.msa
+persistence.db
+
