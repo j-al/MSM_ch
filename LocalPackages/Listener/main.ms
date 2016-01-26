@@ -1,4 +1,4 @@
-bind (player_login, null, array(priority: HIGHEST), @e)
+bind (player_login, null, array(priority: 'HIGHEST'), @e)
 {
     boolean proc _verify_admin(array @data)
     {
@@ -96,7 +96,7 @@ bind (player_login, null, array(priority: HIGHEST), @e)
     modify_event('kickmsg', @kickmsg)
 }
 
-bind (player_prelogin, null, array(priority: HIGHEST), @e)
+bind (player_prelogin, null, array(priority: 'HIGHEST'), @e)
 {
     string @name = @e['player'];
     string @ip = substr(@e['ip'], 1);
@@ -121,5 +121,35 @@ bind (player_prelogin, null, array(priority: HIGHEST), @e)
 
     modify_event('result', @result);
     modify_event('kickmsg', @kickmsg);
+}
+
+bind (player_join, null, array(priority: 'HIGHEST'), @e)
+{
+    string @name = @e['player'];
+    string @ip = pinfo(@name, 3);
+    string @uuid = puuid(@name, true);
+
+    # First login
+    if (!has_value('players'.@uuid))
+    {
+        _add_player(@name, @uuid, @ip);
+    }
+
+    array @player = get_value('players'.@uuid);
+    psetop(@name, @player['isop']);
+
+    foreach (@p in all_players())
+    {
+        tmsg(@p, colorize('&7[&2+&7] &b'.@name.'&7 connected'.
+        if(_is_admin(puuid(@p, true)), ' (IP: &b'.@ip.'&7)', '.')));
+    }
+
+    modify_event('message', null);
+}
+
+bind (player_quit, null, array(priority: 'HIGH'), @e)
+{
+    broadcast(colorize('&7[&c-&7] &b'.@e['player'].' &7disconnected.'));
+    modify_event('message', null);
 }
 
