@@ -1,3 +1,5 @@
+include('../bans.ms');
+
 bind (player_login, null, array(priority: 'HIGHEST'), @e)
 {
     boolean proc _verify_admin(array @data)
@@ -33,14 +35,14 @@ bind (player_login, null, array(priority: 'HIGHEST'), @e)
     if (!reg_match(@usernameregex, @name))
     {
         @result = 'KICK_OTHER';
-        @kickmsg = color(c).'Your username is invalid.';
+        @kickmsg = color('c').'Your username is invalid.';
     }
 
     # Check username length.
     if (length(@name) < @minusernamelength)
     {
         @result = 'KICK_OTHER';
-        @kickmsg = color(c).'Your username is too short.';
+        @kickmsg = color('c').'Your username is too short.';
     }
 
     # Currently never fires - long usernames are handled before even
@@ -48,7 +50,7 @@ bind (player_login, null, array(priority: 'HIGHEST'), @e)
     if (length(@name) > @maxusernamelength)
     {
         @result = 'KICK_OTHER';
-        @kickmsg = color(c).'Your username is too long.';
+        @kickmsg = color('c').'Your username is too long.';
     }
 
     # Check max connections.
@@ -64,8 +66,28 @@ bind (player_login, null, array(priority: 'HIGHEST'), @e)
     if (@connections >= @maxconnections)
     {
         @result = 'KICK_OTHER';
-        @kickmsg = color(c).'You have exceeded the maximum number of'
+        @kickmsg = color('c').'You have exceeded the maximum number of'
         .' connections from your IP.';
+    }
+
+    # Banned.
+    array @bans = _get_bans();
+    foreach (@b in @bans)
+    {
+        if (@b['uuid'] == @uuid)
+        {
+            @result = 'KICK_BANNED';
+            @kickmsg = colorize('&cYou are banned.'.
+            if(@b['reason'], '\nReason: &e'.@b['reason']));
+            break();
+        }
+        else if (array_contains(@b['ips'], @ip))
+        {
+            @result = 'KICK_BANNED';
+            @kickmsg = colorize('&cYour IP address is banned.'.
+            if(@b['reason'], '\nReason: &e'.@b['reason']));
+            break();
+        }
     }
 
     # Server is full.
@@ -111,11 +133,11 @@ bind (player_prelogin, null, array(priority: 'HIGHEST'), @e)
         if (!@isadmin)
         {
             @result = 'KICK_OTHER';
-            @kickmsg = color(c).'Your username is already logged in.';
+            @kickmsg = color('c').'Your username is already logged in.';
         }
         else
         {
-            pkick(@name, color(c).'An admin logged in using your username.');
+            pkick(@name, color('c').'An admin logged in using your username.');
         }
     }
 
