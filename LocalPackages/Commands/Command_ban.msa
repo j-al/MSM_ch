@@ -1,0 +1,142 @@
+*:/ban [$target] [$flags] [$] = >>>
+    _handle_command(array(name: 'ban', description: 'Ban a player.',
+    usage: '/<command> <target> [-aistu] [time] [reason]',
+    rank: 2, source: 0));
+    include('../bans.ms');
+
+    if (!$target)
+    {
+        die('/ban <target> [-aistu] [reason]');
+    }
+
+    string @player = _get_player($target)
+    if (!ponline(@player))
+    {
+        die(_util_msg('PLAYER_OFFLINE'));
+    }
+
+    array @options = array(all: false, ip: true, uuid: true, time: 0,
+    silent: false, reason: '');
+    array @args = array();
+    boolean @hasflags = false;
+    if ($flags)
+    {
+        if (_has_flag($flags, 'a'))
+        {
+            @options['all'] = true;
+            @hasflags = true;
+        }
+        if (_has_flag($flags, 'i'))
+        {
+            @options['uuid'] = false;
+            @hasflags = true;
+        }
+        if (_has_flag($flags, 'u'))
+        {
+            @options['ip'] = false;
+            @hasflags = true;
+        }
+        if (_has_flag($flags, 's'))
+        {
+            @hasflags = true;
+
+            if (!_check_permission(player(), 3))
+            {
+                msg(color('c').'You do not have permission to silence this '.
+                'command.');
+            }
+            else
+            {
+                @options['silent'] = true;
+            }
+        }
+        if (_has_flag($flags, 't') && $)
+        {
+            @options['time'] = time() + _parse_timestring(parse_args($)[0]);
+            @hasflags = true;
+        }
+
+        if (!@hasflags && !$)
+        {
+            @args = array($flags);
+        }
+    }
+
+    if (!(@options['ip'] || @options['uuid']))
+    {
+        die(color('c').'No target to ban (UUID and IP omitted).');
+    }
+
+    if ($)
+    {
+        @args = parse_args($);
+        if (@options['time'])
+        {
+            array_remove(@args, 0);
+        }
+
+        if (!@hasflags)
+        {
+            array_insert(@args, $flags, 0);
+        }
+    }
+
+    @options['reason'] = array_implode(@args);
+    array @ban = _gen_ban('', array(), '');
+    if (@options['ip'])
+    {
+        if (@options['all'])
+        {
+            @ban['ips'] = get_value('players'.puuid(@player, true))['ips'];
+        }
+        else
+        {
+            @ban['ips'] = array(pinfo(@player, 3));
+        }
+    }
+
+    if (@options['uuid'])
+    {
+        @ban['uuid'] = puuid(@player);
+    }
+
+    if (@options['time'])
+    {
+        @ban['expires'] = @options['time'];
+    }
+
+    @ban['name'] = @player;
+    string @msg = 'Banning '.@player.', IP: '.pinfo(@player, 3);
+    if (array_size(@ban['ips']) > 1)
+    {
+        @msg = 'Banning '.@player.' and IPs: '.
+        array_implode(@ban['ips'], ', ');
+    }
+
+    if (!@options['ip'])
+    {
+        @msg = 'Banning '.@player;
+    }
+
+    if (@options['time'])
+    {
+        string @dateformat = 'EEE, d MMM yyyy HH:mm:ss';
+        @msg = @msg.', until '.simple_date(@dateformat, @ban['expires']);
+    }
+
+
+    if (@options['reason'])
+    {
+        @ban['reason'] = @options['reason'];
+        @msg = @msg.colorize(' | Reason: &e'.array_implode(@args).'&c');
+    }
+
+    if (!@options['silent'])
+    {
+        _admin_msg(player(), @msg, false);
+    }
+    _add_ban(@ban);
+    pkick(@player, color('c').'Banned'.
+    if(@ban['reason'], '\nReason: '.color('e').@ban['reason']));
+<<<
+

@@ -38,10 +38,18 @@ void proc _add_ban(array @ban)
     array @check = _get_ban_from_uuid(@ban['uuid']);
     if (@check)
     {
-        int @index = array_index(@bans, @check);
-        array @newips = array_unique(array_merge(@check['ips'], @ban['ips']));
-        @bans[@index]['reason'] = @ban['reason'];
-        @bans[@index]['ips'] = @newips;
+        if (@check['uuid'] != '')
+        {
+            int @index = array_index(@bans, @check);
+            array @newips = array_unique(array_merge(@check['ips'], @ban['ips']));
+            @bans[@index]['reason'] = @ban['reason'];
+            @bans[@index]['expires'] = @ban['expires'];
+            @bans[@index]['ips'] = @newips;
+        }
+        else
+        {
+            @bans[] = @ban;
+        }
     }
     else
     {

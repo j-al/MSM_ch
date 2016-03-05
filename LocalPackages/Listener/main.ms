@@ -72,20 +72,39 @@ bind (player_login, null, array(priority: 'HIGHEST'), @e)
 
     # Banned.
     array @bans = _get_bans();
+    string @expires = '';
     foreach (@b in @bans)
     {
+        @expires = simple_date('EEE, d MMM yyyy \'at\' HH:mm:ss z',
+        @b['expires']);
         if (@b['uuid'] == @uuid)
         {
+            if (@b['expires'] != 0 && time() > @b['expires'])
+            {
+                _del_ban(@b);
+                @result = 'ALLOWED';
+                continue();
+            }
             @result = 'KICK_BANNED';
             @kickmsg = colorize('&cYou are banned.'.
-            if(@b['reason'], '\nReason: &e'.@b['reason']));
+            if(@b['reason'], '\nReason: &e'.@b['reason']).
+            if(@b['expires'], '\n&cYou will be unbanned on '.@expires));
             break();
         }
-        else if (array_contains(@b['ips'], @ip))
+        else if (array_contains(@b['ips'], @ip) ||
+                 array_contains(@b['ips'], _wc_ip(@ip)) ||
+                 array_contains(@b['ips'], _wc_ip(@ip, 1)))
         {
+            if (@b['expires'] != 0 && time() > @b['expires'])
+            {
+                _del_ban(@b);
+                @result = 'ALLOWED';
+                continue();
+            }
             @result = 'KICK_BANNED';
             @kickmsg = colorize('&cYour IP address is banned.'.
-            if(@b['reason'], '\nReason: &e'.@b['reason']));
+            if(@b['reason'], '\nReason: &e'.@b['reason']).
+            if(@b['expires'], '\n&cYou will be unbanned on '.@expires));
             break();
         }
     }
@@ -109,7 +128,7 @@ bind (player_login, null, array(priority: 'HIGHEST'), @e)
             }
             else
             {
-                @kickmsg = 'Server is full. Unable to kick a player.';
+                @kickmsg = 'Server is full. A player could not be kicked.';
             }
         }
     }

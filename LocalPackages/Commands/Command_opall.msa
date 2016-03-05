@@ -9,7 +9,7 @@
         {
             if (!_check_permission(player(), 3))
             {
-                msg(color(c).'You do not have permission to silence this command.');
+                msg(color('c').'You do not have permission to silence this command.');
             }
             else
             {

@@ -1,0 +1,264 @@
+*:/bans [$option] [$target] [$] = >>>
+    _handle_command(array(name: 'bans', description: 'Manage bans.',
+    usage: '/<command> <ban <name [-st] [reason]> | '.
+    'banip <IP | range> [reason] | unban <name | ID> [-s] | '.
+    'info <name> | list | purge>', rank: 2, source: 0));
+    include('../bans.ms');
+
+    if (!$option)
+    {
+        die('/bans <ban <name [-st] [reason]> | banip <IP | range> [reason] |'.
+        ' unban <name | ID> [-s] | info <name> | list | purge>');
+    }
+
+    string @mode = $option;
+
+    if (equals_ic(@mode, 'purge'))
+    {
+        _admin_msg(player(), 'Purging the banlist', false);
+        die(color(b).'Purged '._clear_bans().' ban(s).');
+    }
+
+    if (equals_ic(@mode, 'list'))
+    {
+        array @bans = _get_bans();
+        msg(color(b).'[ ID ] [ Name ] [ IPs ] [ Issuer ] [ Reason ] [ UUID ]');
+        foreach (@ban in @bans)
+        {
+            msg(color(b).'[ '.@ban['id'].' ] [ '.@ban['name'].' ] [ '.
+            array_implode(@ban['ips'], ', ').' ] [ '.@ban['issuer'].' ] [ '.
+            @ban['reason'].' ] [ '.@ban['uuid'].' ]');
+        }
+
+        die();
+    }
+
+    if (!$target)
+    {
+        die('/bans <ban <name [-st] [reason]> | banip <IP | range> [reason] |'.
+        ' unban <name | ID> [-s] | info <name> | list | purge>');
+    }
+
+    if (equals_ic(@mode, 'ban'))
+    {
+        string @p = _get_player($target);
+        if (!has_value('players'.puuid(@p, true)))
+        {
+            die(_util_msg('PLAYER_NOT_FOUND'));
+        }
+
+        string @reason = '';
+        boolean @flags = false;
+        boolean @silent = false;
+        int @time = 0;
+        array @args = array();
+        array @ips = get_value('players'.puuid(@p, true))['ips'];
+
+        if ($)
+        {
+            @args = parse_args($);
+            if (_has_flag(@args[0], 's'))
+            {
+                if (!_check_permission(player(), 3))
+                {
+                    msg(color(c).'You do not have permission to silence this '.
+                    'command.');
+                    if (!_has_flag(@args[0], 't'))
+                    {
+                        array_remove(@args, 0);
+                    }
+                }
+                else
+                {
+                    @silent = true;
+                }
+            }
+
+            if (_has_flag(@args[0], 't'))
+            {
+                @time = time() + _parse_timestring(@args[1]);
+                array_remove(@args, 1);
+            }
+
+            if (@time || @silent)
+            {
+                array_remove(@args, 0);
+                @reason = array_implode(@args);
+            }
+            else
+            {
+                @reason = array_implode(@args);
+            }
+        }
+
+        if (!@silent)
+        {
+            _admin_msg(player(), 'Banning '.@p.' and IPs: '.
+            array_implode(@ips, ', '), false);
+        }
+
+        array @ban = _gen_ban(puuid(@p), @ips, @p, @reason);
+        @ban['expires'] = @time;
+        _add_ban(@ban);
+
+        if (ponline(@p))
+        {
+            pkick(@p, color(c).'Banned by '.player());
+        }
+
+        die();
+    }
+
+    if (equals_ic(@mode, 'banip'))
+    {
+        string @ip = $target;
+        array @split = split('.', @ip);
+        if (array_size(@split) != 4)
+        {
+            die(color(c).'You specified an invalid IP address.');
+        }
+
+        if (@split[0] == '*' || @split[1] == '*')
+        {
+            die(color(c).'You may only wildcard the last two octets of a range.');
+        }
+
+        if (@split[2] == '*' && @split[3] != '*')
+        {
+            die(color(c).'You specified an invalid IP range.');
+        }
+
+        foreach (@c in @split)
+        {
+            if (@c == '*')
+            {
+                if (!_check_permission(player(), 3))
+                {
+                    die(color(c).'You do not have permission to ban IP ranges.');
+                }
+
+                continue();
+            }
+
+            if (!is_numeric(@c))
+            {
+                die(color(c).'You specified an invalid IP address.');
+            }
+
+            if (@c < 0 || @c > 255)
+            {
+                die(color(c).'You specified an invalid IP address.');
+            }
+        }
+
+        string @reason = '';
+        if ($)
+        {
+            @reason = $;
+        }
+
+        array @ban = _gen_ban('', array(@ip), '', @reason);
+        _admin_msg(player(), 'Banning IP: '.@ip, false);
+        _add_ban(@ban);
+
+        die();
+    }
+
+    if (equals_ic(@mode, 'unban'))
+    {
+        string @p = $target;
+        boolean @silent = false;
+        if ($)
+        {
+            if (_has_flag(parse_args($)[0], 's'))
+            {
+                if (!_check_permission(player(), 3))
+                {
+                    msg(color(c).'You do not have permission to silence this '.
+                    'command.');
+                }
+                else
+                {
+                    @silent = true;
+                }
+            }
+        }
+
+        if (is_numeric(@p))
+        {
+            if (length(@p) <= length(array_size(_get_bans())))
+            {
+                closure @c = closure(@k, @v, return(@v['id'] == @p));
+                array @t = array_filter(_get_bans(), @c);
+                if (!@t)
+                {
+                    die(color(c).'Invalid ban ID.');
+                }
+
+                if (!@silent)
+                {
+                    if (!@t[0]['name'])
+                    {
+                        _admin_msg(player(), 'Unbanning IP: '.
+                        array_implode(@t[0]['ips'], ', '), false);
+                    }
+                    else
+                    {
+                        _admin_msg(player(), 'Unbanning '.@t[0]['name'].' and IPs: '.
+                        array_implode(@t[0]['ips'], ', '), false);
+                    }
+                }
+
+                _del_ban(@t[0]);
+            }
+            else
+            {
+                die(color(c).'Invalid ban ID.');
+            }
+        }
+        else
+        {
+            closure @c = closure(@k, @v, return(@v['uuid'] == puuid(@p) ||
+            array_contains(@v['ips'], @p)));
+            array @t = array_filter(_get_bans(), @c);
+            if (array_size(@t) == 0)
+            {
+                die(color(c).'That player is not banned.');
+            }
+
+            if (!@silent)
+            {
+                _admin_msg(player(), 'Unbanning '.@t[0]['name'].' and IPs: '.
+                array_implode(@t[0]['ips'], ', '), false);
+            }
+            _del_ban(@t[0]);
+        }
+
+        die();
+    }
+
+    if (equals_ic(@mode, 'info'))
+    {
+        string @t = $target;
+        string @dateformat = 'EEE, d MMM yyyy HH:mm:ss';
+        array @ban = _get_ban_from_uuid(puuid(@t));
+
+        if (array_size(@ban) == 0)
+        {
+            die(color(b).@t.' is not banned.');
+        }
+
+        msg(colorize('&b'.@t.' is &cbanned&b.'));
+        if (@ban['reason'])
+        {
+            msg(colorize('&bReason: '.@ban['reason']));
+        }
+        msg(colorize('&bBanned by: '.@ban['issuer']))
+        die(colorize('&bExpires: '.if(!@ban['expires'], 'Never',
+        simple_date(@dateformat, @ban['expires']))));
+    }
+
+    die('/bans <ban <name [-st] [reason]> | banip <IP | range> [reason] |'.
+    ' unban <name | ID> [-s] | info <name> | list | purge>');
+<<<
+

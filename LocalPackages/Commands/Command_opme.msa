@@ -7,7 +7,7 @@
 
     if (!_check_permission(player(), 2) && array_size(@admins) != 0)
     {
-        die(color(c).'You cannot automatically op yourself while there are'
+        die(color('c').'You cannot automatically op yourself while there are'
         .' admins online. Please ask an admin or another player to op you.');
     }
 

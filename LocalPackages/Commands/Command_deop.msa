@@ -19,7 +19,7 @@
     {
         if (!_check_permission(player(), 2))
         {
-            msg(color(c).'You do not have permission to silence this command.');
+            msg(color('c').'You do not have permission to silence this command.');
         }
         else
         {
@@ -31,7 +31,7 @@
     {
         if (!_check_permission(player(), 2))
         {
-            die(color(c).'You do not have permission to deop offline players.');
+            die(color('c').'You do not have permission to deop offline players.');
         }
 
         if (!array_contains(_get_players(), @p) || @p[0] == '~')
