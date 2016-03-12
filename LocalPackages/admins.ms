@@ -83,3 +83,37 @@ boolean proc _is_super(string @uuid)
     return(get_value('admins'.@uuid)['super']);
 }
 
+array proc _prune_inactive_admins()
+{
+    array @pruned = array();
+    array @admins = get_values('admins');
+    int @lastlogin;
+    int @timeelapsed;
+    foreach (@a in @admins)
+    {
+        @lastlogin = @a['lastlogin'];
+        @timeelapsed = time() - @lastlogin;
+
+        if (@a['lastname'][0] == '~')
+        {
+            continue();
+        }
+
+        if (!@a['admin'] && @timeelapsed > @lastlogin + (1000 * 60 * 60 * 24 * 30))
+        {
+                _del_admin(@a['uuid'], true);
+                @pruned[] = @a['lastname'];
+        }
+        else if (@timeelapsed > @lastlogin + (1000 * 60 * 60 * 24 * 3))
+        {
+            if (!@a['super'])
+            {
+                _del_admin(@a['uuid']);
+                @pruned[] = @a['lastname'];
+            }
+        }
+    }
+
+    return(@pruned);
+}
+

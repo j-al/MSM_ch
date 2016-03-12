@@ -1,0 +1,118 @@
+*:/admins [$option] [$target] [$] = >>>
+    _handle_command(array(name: 'admins', description: 'Manage admins.',
+    usage: '/<command> <list | prune | <info | add | del | purge <player>>>',
+    rank: 2, source: 0));
+    include('../admins.ms');
+
+    if (!$option)
+    {
+        die('/admins <list | prune | <info | add | del | purge <player>>>');
+    }
+
+    if (equals_ic($option, 'list'))
+    {
+        array @admins = array();
+        foreach (@a in get_values('admins'))
+        {
+            if (@a['admin'])
+            {
+                @admins[] = @a['lastname'];
+            }
+        }
+
+        die(color(b).'Admins: '.array_implode(@admins, ', '));
+    }
+
+    if (equals_ic($option, 'prune'))
+    {
+        if (!(_check_permission(player(), 3) ||
+              _check_permission(player(), 2, 2)))
+        {
+            die(_util_msg('NO_PERMISSION'));
+        }
+
+        _admin_msg(player(), 'Pruning admin list', false);
+        die(color(c).'Pruned admins: '.array_implode(_prune_inactive_admins(), ', '));
+    }
+
+    if (!$target)
+    {
+        die('/admins <list | prune | <info | add | del | purge <player>>>');
+    }
+
+    if (equals_ic($option, 'info'))
+    {
+        string @p = _get_player($target);
+        if (!has_value('admins'.puuid(@p, true)))
+        {
+            die(color(c).'That player is not an admin.');
+        }
+        array @a = get_value('admins'.puuid(@p, true));
+        string @date = 'EEE, d MMM yyyy HH:mm:ss';
+
+        msg(color(b).'Admin: '.@a['uuid']);
+        msg(color(b).'Is admin: '.@a['admin']);
+        msg(color(b).'Is super: '.@a['super']);
+        msg(color(b).'Last name: '.@a['lastname']);
+        msg(color(b).'Last login: '.simple_date(@date, @a['lastlogin']));
+        die(color(b).'IPs: '.array_implode(@a['ips'], ', '));
+    }
+
+    if (equals_ic($option, 'add'))
+    {
+        if (!_check_permission(player(), 2, 2))
+        {
+            die(_util_msg('NO_PERMISSION'))
+        }
+
+        string @p = _get_player($target, false);
+        if (!has_value('players'.puuid(@p, true)))
+        {
+            die(_util_msg('PLAYER_NOT_FOUND'));
+        }
+
+        _admin_msg(player(), 'Adding '.@p.' to the admin list', false);
+        _add_admin(puuid(@p, true));
+        die();
+    }
+
+    if (array_contains_ic(array('delete', 'del', 'remove'), $option))
+    {
+        if (!_check_permission(player(), 2, 2))
+        {
+            die(_util_msg('NO_PERMISSION'));
+        }
+
+        string @p = _get_player($target, false);
+        if (!_is_admin(puuid(@p, true)))
+        {
+            die(color(c).'That player is not an admin.');
+        }
+
+        _admin_msg(player(), 'Removing '.@p.' from the admin list', false);
+        _del_admin(puuid(@p, true));
+        die();
+    }
+
+    if (equals_ic($option, 'purge'))
+    {
+        if (!_check_permission(player(), 3, 2))
+        {
+            die(_util_msg('NO_PERMISSION'));
+        }
+
+        string @p = $target;
+        if (!has_value('admins'.puuid(@p, true)))
+        {
+            die(color(c).'Admin not found: '.@p);
+        }
+
+        string @name = get_value('admins'.puuid(@p, true))['lastname'];
+        _admin_msg(player(), 'Purging admin: '.@name, false);
+        _del_admin(puuid(@p, true), true);
+        die();
+    }
+
+    die('/admins <list | prune | <info | add | del | purge <player>>>');
+<<<
+
