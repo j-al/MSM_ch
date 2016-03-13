@@ -1,0 +1,9 @@
+# MSM_ch - Configuration
+  # Usernames which should be marked as bots. Should begin with a '~'.
+  bots:
+    - ~console
+
+  # Developer IPs. IPs in this list will be able to use developer tools.
+  devips:
+    - 127.0.0.1
+

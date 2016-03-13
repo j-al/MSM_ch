@@ -101,8 +101,8 @@ array proc _prune_inactive_admins()
 
         if (!@a['admin'] && @timeelapsed > @lastlogin + (1000 * 60 * 60 * 24 * 30))
         {
-                _del_admin(@a['uuid'], true);
-                @pruned[] = @a['lastname'];
+            _del_admin(@a['uuid'], true);
+            @pruned[] = @a['lastname'];
         }
         else if (@timeelapsed > @lastlogin + (1000 * 60 * 60 * 24 * 3))
         {

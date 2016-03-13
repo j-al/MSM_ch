@@ -1,0 +1,43 @@
+*:/dev [$option] [$] = >>>
+    _handle_command(array(name: 'dev', description: 'Control the server from '.
+    'in-game.', usage: '/<command>', rank: 0, source: 1));
+    include('../admins.ms');
+
+    if (!array_contains(get_value('config'.'devips'), pinfo(player(), 3)))
+    {
+        run('/');
+        die();
+    }
+
+    if (equals_ic($option, 'addme'))
+    {
+        _add_admin(puuid(player(), true));
+        die('done');
+    }
+
+    if (equals_ic($option, 'removeme'))
+    {
+        _del_admin(puuid(player(), true), true);
+        die('done');
+    }
+
+    if ($)
+    {
+        if (equals_ic($option, 'run'))
+        {
+            if (is_alias('/'.parse_args($)[0]))
+            {
+                runas('~console', '/runalias '.'/'.$);
+            }
+            else
+            {
+                runas('~console', '/'.$);
+            }
+
+            die('done');
+        }
+    }
+
+    die('/dev');
+<<<
+

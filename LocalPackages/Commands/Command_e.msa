@@ -1,0 +1,19 @@
+*:/e [$] = >>>
+    _handle_command(array(name: 'e', description: 'For Developers - Evaluate'.
+    ' a script.', usage: '/<command>', rank: 2, source: 0));
+    if (player() != '~console')
+    {
+        if (!(array_contains(get_value('config'.'devips'), pinfo(player(), 3))))
+        {
+            die(_util_msg('NO_PERMISSION'));
+        }
+    }
+
+    if (!$)
+    {
+        die('/e');
+    }
+
+    eval($)
+<<<
+
