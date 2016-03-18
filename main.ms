@@ -1,4 +1,7 @@
 # Main file - this loads first.
+include('LocalPackages/logger.ms');
+include('LocalPackages/Listener/main.ms');
+
 int @startup = time();
 double @version = 0.1;
 array @dependencies = array('CHAdvanced', 'CHDangerous');
@@ -9,11 +12,9 @@ foreach (@e in @dependencies)
     # extension_exists() only accepts hardcoded values
     if (!extension_info(@e))
     {
-        sys_err('Extension not found: '.@e);
+        _log_msg('Extension not found: '.@e, 1);
     }
 }
-
-include('LocalPackages/Listener/main.ms');
 
 void proc _start_listeners()
 {
@@ -39,16 +40,24 @@ void proc _stop_listeners()
 void proc _load_config()
 {
     array @configpath = yml_decode(comp_read('config.yml'));
+    _log_msg('Read config.yml.', 3);
 
     foreach (@k: @v in @configpath)
     {
+        _log_msg('config.'.@k.': '.@v, 3);
         store_value('config'.@k, @v);
     }
 }
 
 void proc _on_enable(int @startup, double @version)
 {
+    if (!file_size('log.txt'))
+    {
+        chd_create('log.txt');
+    }
+
     _load_config();
+    _set_log_level(get_value('config'.'loglevel'));
     _start_listeners();
     store_value('server'.'startuptime', @startup);
 
@@ -57,15 +66,14 @@ void proc _on_enable(int @startup, double @version)
         _on_disable();
     }
 
-    sys_out('MSM_ch version '.@version.'. Enabled in '.(time() - @startup).' ms.');
+    _log_msg('Version '.@version.'. Enabled in '.(time() - @startup).' ms.', 0, true);
 }
 
 void proc _on_disable()
 {
     clear_value('server'.'startuptime');
     _stop_listeners();
-
-    sys_out('MSM_ch disabled.');
+    _log_msg('Disabled.', 0, true);
 }
 
 if (!has_value('server'.'startuptime'))

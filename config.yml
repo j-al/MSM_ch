@@ -1,4 +1,12 @@
 # MSM_ch - Configuration
+  # Log level - specifies what will be output to the console.
+  # Errors will always be logged to file regardless, except at loglevel 0.
+  # 3 - Log debug messages.
+  # 2 - Log errors to console.
+  # 1 - Log only warnings and informational messages. Errors logged to file.
+  # 0 - Log only informational messages. Errors are not logged at all.
+  loglevel: 2
+
   # Usernames which should be marked as bots. Should begin with a '~'.
   bots:
     - ~console

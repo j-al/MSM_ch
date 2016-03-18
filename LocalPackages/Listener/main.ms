@@ -32,6 +32,7 @@ void proc _event_player_login()
         int @minusernamelength = 3;
         int @maxusernamelength = 16;
         string @usernameregex = '^[\\w\\d_]{3,16}$';
+        _log_msg('[PLAYER_LOGIN] '.@name.', IP: '.@ip, 0);
 
         # Check username is valid.
         if (!reg_match(@usernameregex, @name))
@@ -87,6 +88,7 @@ void proc _event_player_login()
                     @result = 'ALLOWED';
                     continue();
                 }
+
                 @result = 'KICK_BANNED';
                 @kickmsg = colorize('&cYou are banned.'.
                 if(@b['reason'], '\nReason: &e'.@b['reason']).
@@ -103,6 +105,7 @@ void proc _event_player_login()
                     @result = 'ALLOWED';
                     continue();
                 }
+
                 @result = 'KICK_BANNED';
                 @kickmsg = colorize('&cYour IP address is banned.'.
                 if(@b['reason'], '\nReason: &e'.@b['reason']).
@@ -135,6 +138,8 @@ void proc _event_player_login()
             }
         }
 
+        _log_msg('RESULT: '.@result, 3);
+        _log_msg('KICKMSG: '.@kickmsg, 3);
         modify_event('result', @result)
         modify_event('kickmsg', @kickmsg)
     }
@@ -165,6 +170,8 @@ void proc _event_player_prelogin()
             }
         }
 
+        _log_msg('PRELOGIN RESULT: '.@result, 3);
+        _log_msg('PRELOGIN KICKMSG: '.@kickmsg, 3);
         modify_event('result', @result);
         modify_event('kickmsg', @kickmsg);
     }
@@ -177,6 +184,7 @@ void proc _event_player_join()
         string @name = @e['player'];
         string @ip = pinfo(@name, 3);
         string @uuid = puuid(@name, true);
+        _log_msg('[PLAYER_JOIN] '.@name, 0);
 
         # First login
         if (!has_value('players'.@uuid))
@@ -204,6 +212,7 @@ void proc _event_player_quit()
 {
     bind (player_quit, null, array(priority: 'HIGH'), @e)
     {
+        _log_msg('[PLAYER_QUIT] '.@e['player'], 0);
         broadcast(colorize('&7[&c-&7] &b'.@e['player'].' &7disconnected.'));
         modify_event('message', null);
     }
