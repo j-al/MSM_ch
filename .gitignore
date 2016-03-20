@@ -7,5 +7,6 @@
 # Unused files.
 aliases.msa
 persistence.db
+log.txt
 *.swp
 

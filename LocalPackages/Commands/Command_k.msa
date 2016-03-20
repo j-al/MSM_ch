@@ -1,0 +1,44 @@
+*:/k [$target] [$silent] [$] = >>>
+    _handle_command(array(name: 'k', description: 'Quickly kick a player off'.
+    ' the server.', usage: '/<command> <player> [-s] [reason]', rank: 2,
+    source: 0, aliases: array('/kick')));
+
+    if (!$target)
+    {
+        die('/k <player> [-s] [reason]');
+    }
+
+    string @target = _get_player($target);
+    string @reason = '';
+    boolean @silent = false;
+
+    if (!ponline(@target))
+    {
+        die(_util_msg('PLAYER_OFFLINE'));
+    }
+
+    if ($silent)
+    {
+        if (_has_flag($silent, 's'))
+	{
+	    @silent = true;
+	}
+        else
+	{
+	    @reason = $silent.' ';
+	}
+    }
+
+    if ($)
+    {
+        @reason = @reason.$;
+    }
+
+    if (!@silent)
+    {
+        _admin_msg(player(), 'Kicking '.@target, false);
+    }
+
+    pkick(@target, colorize('&cKicked'.if(@reason, '\n&cReason: &e'.@reason)));
+<<<
+
