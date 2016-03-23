@@ -1,0 +1,44 @@
+*:/login [$] = >>>
+    _handle_command(array(name: 'login', description: 'Login to the server ',
+    usage: '/<command>', rank: -1, source: 1));
+
+    boolean @registered = get_value('players'.puuid(player(),
+    true))['isregistered'];
+    boolean @loggedin = get_value('players'.puuid(player(), true))['loggedin'];
+
+    if (!@registered)
+    {
+        die(color(b).'You are not registered.');
+    }
+
+    if (@loggedin)
+    {
+        die(color(b).'You are already logged in.');
+    }
+
+    void proc _prompt_for_password()
+    {
+        msg(color(b).'Please type your password.');
+        bind (player_chat, array(player: player()), array(priority: 'LOWEST'),
+	@e)
+	{
+	    cancel();
+	    modify_event('message', null);
+	    modify_event('format', '');
+	    unbind();
+	    string @password = get_value('players'.puuid(player(),
+	    true))['password'];
+
+	    if (sha256(@e['message']) != @password)
+	    {
+	        die(color(b).'Incorrect password.');
+	    }
+
+	    _set_logged_in(puuid(player(), true), true);
+	    die(color(b).'Logged in.');
+	}
+    }
+
+    _prompt_for_password();
+<<<
+

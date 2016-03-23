@@ -7,7 +7,8 @@ if (!has_value('players'.'console'))
 void proc _add_player(string @name, string @uuid, string @ip)
 {
     array @player = array(uuid: @uuid, lastname: @name, lastlogin: time(),
-    joined: time(), ips: array(@ip), isop: pisop(@name));
+    joined: time(), ips: array(@ip), isop: pisop(@name), isregistered: false,
+    loggedin: false);
     store_value('players'.@uuid, @player);
 }
 
@@ -45,6 +46,30 @@ void proc _set_op(string @uuid, boolean @op)
         psetop(@pdata['lastname'], @op);
     }
 
+    store_value('players'.@uuid, @pdata);
+}
+
+boolean proc _is_registered(string @uuid)
+{
+    array @pdata = get_value('players'.@uuid);
+    return(@pdata['isregistered']);
+}
+
+boolean proc _is_logged_in(string @uuid)
+{
+    if (!_is_registered(@uuid))
+    {
+        return(false);
+    }
+
+    array @pdata = get_value('players'.@uuid);
+    return(@pdata['loggedin']);
+}
+
+void proc _set_logged_in(string @uuid, boolean @loggedin)
+{
+    array @pdata = get_value('players'.@uuid);
+    @pdata['loggedin'] = @loggedin;
     store_value('players'.@uuid, @pdata);
 }
 

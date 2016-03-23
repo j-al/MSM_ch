@@ -33,6 +33,17 @@ void proc _handle_command(array @command)
     }
 
     # check command permissions
+    if (ponline(@sender))
+    {
+        if (_is_registered(puuid(@sender, true)))
+        {
+            if (@rank != -1 && !_is_logged_in(puuid(@sender, true)))
+            {
+                die(color(c).'You must login in order to use this command.');
+            }
+        }
+    }
+
     switch (@rank)
     {
         case 1:

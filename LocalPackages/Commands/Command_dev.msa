@@ -1,6 +1,6 @@
 *:/dev [$option] [$] = >>>
     _handle_command(array(name: 'dev', description: 'Control the server from '.
-    'in-game.', usage: '/<command>', rank: 0, source: 1));
+    'in-game.', usage: '/<command>', rank: -1, source: 1));
     include('../admins.ms');
 
     if (!array_contains(get_value('config'.'devips'), pinfo(player(), 3)))

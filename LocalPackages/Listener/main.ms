@@ -192,8 +192,16 @@ void proc _event_player_join()
             _add_player(@name, @uuid, @ip);
         }
 
-        # Update persistent playerdata
         array @player = get_value('players'.@uuid);
+	if (@player['isregistered'] && !@player['loggedin'])
+	{
+	    set_timeout(1000, closure()
+	    {
+	        tmsg(@name, colorize('&bPlease login.'))
+	    });
+	}
+
+        # Update persistent playerdata
         @player['lastlogin'] = time();
         psetop(@name, @player['isop']);
         store_value('players'.@uuid, @player);
@@ -201,7 +209,7 @@ void proc _event_player_join()
         foreach (@p in all_players())
         {
             tmsg(@p, colorize('&7[&2+&7] &b'.@name.'&7 connected'.
-            if(_is_admin(puuid(@p, true)), ' (IP: &b'.@ip.'&7)', '.')));
+            if(_is_admin(@uuid), ' (IP: &b'.@ip.'&7)', '.')));
         }
 
         modify_event('message', null);
@@ -212,9 +220,48 @@ void proc _event_player_quit()
 {
     bind (player_quit, null, array(priority: 'HIGH'), @e)
     {
-        _log_msg('[PLAYER_QUIT] '.@e['player'], 0);
-        broadcast(colorize('&7[&c-&7] &b'.@e['player'].' &7disconnected.'));
+        string @player = @e['player'];
+        _log_msg('[PLAYER_QUIT] '.@player, 0);
+        broadcast(colorize('&7[&c-&7] &b'.@player.' &7disconnected.'));
         modify_event('message', null);
+
+	if (_is_logged_in(puuid(@player, true)))
+	{
+	    if (_is_admin(puuid(@player, true)))
+	    {
+	        _set_logged_in(puuid(@player, true), false);
+	    }
+	    else
+	    {
+	        broadcast('player: '.@player);
+	        set_timeout(_parse_timestring('30m'), closure()
+		{
+		    if (!ponline(@player))
+		    {
+		        _set_logged_in(puuid(@player, true), false);
+		    }
+		});
+	    }
+	}
+    }
+}
+
+void proc _event_player_command()
+{
+    bind (player_command, null, array(priority: 'HIGH'), @e)
+    {
+        string @player = @e['player'];
+
+	if (_is_registered(puuid(@player, true)))
+	{
+	    if (!_is_logged_in(puuid(@player, true)) &&
+	        !is_alias(@e['prefix']))
+	    {
+	        cancel();
+		tmsg(@player, color(c).'You must login in order to use this '.
+		'command.');
+	    }
+	}
     }
 }
 
