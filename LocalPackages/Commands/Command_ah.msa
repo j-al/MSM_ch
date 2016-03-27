@@ -1,0 +1,26 @@
+*:/ah [$target] [$] = >>>
+    _handle_command(array(name: 'ah', description: 'Send someone on a short '.
+    'vacation.', usage: '/<command> <player>', rank: 2, source: 0));
+    include('../bans.ms');
+
+    if (!$target)
+    {
+        die('/ah <player>');
+    }
+
+    string @player = _get_player($target);
+    if (!ponline(@player))
+    {
+        die(_util_msg('PLAYER_OFFLINE'));
+    }
+
+    array @ban = _gen_ban(puuid(@player), array(pinfo(@player, 3)), @player);
+    @ban['expires'] = time() + _parse_timestring('7m');
+    @ban['reason'] = 'Chill';
+
+    broadcast(color(c).@player.' is going on vacation.');
+    _set_op(puuid(@player, true), false);
+    _add_ban(@ban);
+    pkick(@player, color(c).'Enjoy your vacation, asshat!');
+<<<
+

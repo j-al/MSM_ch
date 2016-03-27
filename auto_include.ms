@@ -110,3 +110,14 @@ string proc _wc_ip(string @ip, int @octets = 2)
     return(@ip);
 }
 
+void proc _clear_pinv(string @player)
+{
+    array @inventory = pinv(@player);
+    foreach (@i: @v in @inventory)
+    {
+        @inventory[@i] = null;
+    }
+
+    set_pinv(@player, @inventory);
+}
+

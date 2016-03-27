@@ -1,0 +1,14 @@
+*:/kall [$] = >>>
+    _handle_command(array(name: 'kall', description: 'Kick all non-admins on'.
+    ' the server.', usage: '/<command> [reason]', rank: 3, source: 0));
+
+    _admin_msg(player(), 'Kicking all non-admins', false);
+    foreach (@p in all_players())
+    {
+        if (!_is_admin(puuid(@p, true)))
+        {
+            pkick(@p, colorize('&cKicked'.if($, '\n&cReason: &e'.$)));
+        }
+    }
+<<<
+

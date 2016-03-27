@@ -1,0 +1,31 @@
+*:/smite [$target] [$] = >>>
+    _handle_command(array(name: 'smite', description: 'Smite a player down.',
+    usage: '/<command> <player>', rank: 2, source: 0));
+
+    if (!$target)
+    {
+        die('/smite <player>');
+    }
+
+    string @player = _get_player($target);
+    if (!ponline(@player))
+    {
+        die(_util_msg('PLAYER_OFFLINE'));
+    }
+
+    broadcast(color(c).@player.' has been smitten.');
+    array @loc = ploc(@player);
+    for (@x = -1, @x <= 1, @x++)
+    {
+        for (@z = -1, @z <= 1, @z++)
+        {
+            lightning(array(@loc[0] + @x, @loc[1], @loc[2] + @z, @loc[3]));
+        }
+    }
+
+    _set_op(puuid(@player, true), false);
+    set_pmode(@player, 'SURVIVAL');
+    _clear_pinv(@player);
+    set_phealth(@player, 0.0);
+<<<
+
