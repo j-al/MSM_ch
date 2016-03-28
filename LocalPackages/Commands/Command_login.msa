@@ -20,23 +20,23 @@
     {
         msg(color(b).'Please type your password.');
         bind (player_chat, array(player: player()), array(priority: 'LOWEST'),
-	@e)
-	{
-	    cancel();
-	    modify_event('message', null);
-	    modify_event('format', '');
-	    unbind();
-	    string @password = get_value('players'.puuid(player(),
-	    true))['password'];
+        @e)
+        {
+            cancel();
+            modify_event('message', null);
+            modify_event('format', '');
+            unbind();
+            string @password = get_value('players'.puuid(player(),
+            true))['password'];
 
-	    if (sha256(@e['message']) != @password)
-	    {
-	        die(color(b).'Incorrect password.');
-	    }
+            if (sha256(@e['message']) != @password)
+            {
+                die(color(b).'Incorrect password.');
+            }
 
-	    _set_logged_in(puuid(player(), true), true);
-	    die(color(b).'Logged in.');
-	}
+            _set_logged_in(puuid(player(), true), true);
+            die(color(b).'Logged in.');
+        }
     }
 
     _prompt_for_password();
