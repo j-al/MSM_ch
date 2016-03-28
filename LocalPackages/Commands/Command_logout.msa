@@ -1,0 +1,16 @@
+*:/logout [$] = >>>
+    _handle_command(array(name: 'logout', description: 'Manually logout.',
+    usage: '/<command>', rank: 0, source: 1));
+
+    boolean @registered = _is_registered(puuid(player(), true));
+    boolean @loggedin = _is_logged_in(puuid(player(), true));
+
+    if (!@registered)
+    {
+        die(color(b).'You are not registered.');
+    }
+
+    _set_logged_in(puuid(player(), true), false);
+    die(color(b).'Logged out.');
+<<<
+

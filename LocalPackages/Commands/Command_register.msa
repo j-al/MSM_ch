@@ -1,0 +1,89 @@
+*:/register [$] = >>>
+    _handle_command(array(name: 'register', description: 'Register your '.
+    'username to prevent it from being used by others, or change '.
+    'your existing password.', usage: '/<command>', rank: -1, source: 1));
+
+    void proc _prompt_for_password(boolean @newpw = false)
+    {
+        msg(color(b).'Please type '.if(@newpw, 'new ').'password.');
+        bind (player_chat, array(player: player()), array(priority: 'LOWEST'), @e)
+        {
+            cancel();
+            modify_event('message', null);
+            modify_event('format', '');
+            unbind();
+
+            if (length(@e['message']) < 8)
+            {
+                die(color(b).'Passwords must be at least 8 characters long.');
+            }
+
+            export(player().'temppw', sha256(@e['message']));
+            msg(color(b).'Please confirm password.');
+
+            bind (player_chat, array(player: player()), array(priority: 'LOWEST'), @e)
+            {
+                cancel();
+                modify_event('message', null);
+                modify_event('format', '');
+                unbind();
+
+                if (sha256(@e['message']) != import(player().'temppw'))
+                {
+                    die(color(b).'The passwords do not match.');
+                }
+
+                string @password = import(player().'temppw');
+                export(player().'temppw', null);
+                array @player = get_value('players'.puuid(player(), true));
+                @player['isregistered'] = true;
+                @player['loggedin'] = true;
+                @player['password'] = @password;
+                store_value('players'.puuid(player(), true), @player);
+                die(color(b).'Password set.');
+            }
+        }
+    }
+
+    array @player = get_value('players'.puuid(player(), true));
+    if (_is_registered(puuid(player(), true)))
+    {
+        if (!@player['password'])
+        {
+            _prompt_for_password(true);
+        }
+        else
+        {
+            if (!_is_logged_in(puuid(player(), true)))
+            {
+                die(color(b).'You must login in order to change '.
+                'your password.');
+            }
+
+            msg(color(b).'Please type your existing password to confirm.');
+            bind (player_chat, array(player: player()), array(priority: 'LOWEST'), @e)
+            {
+                array @player = get_value('players'.puuid(player(), true));
+                cancel();
+                modify_event('message', null);
+                modify_event('format', '');
+                unbind();
+
+                if (sha256(@e['message']) != @player['password'])
+                {
+                    msg(color(b).'Incorrect password.');
+                    die(color(b).'If you have forgotten your password please '.
+                    'contact a senior admin.');
+                }
+
+                _prompt_for_password(true);
+                die();
+            }
+        }
+
+        die();
+    }
+
+    _prompt_for_password();
+<<<
+
