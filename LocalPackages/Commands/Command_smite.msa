@@ -13,7 +13,19 @@
         die(_util_msg('PLAYER_OFFLINE'));
     }
 
-    broadcast(color(c).@player.' has been smitten.');
+    string @message = ' has been ';
+    string @append = 'smitten.';
+    if (get_value('config'.'cynical'))
+    {
+        @append = 'a naughty, naughty boy.';
+        int @rand = rand(0, 2);
+        if (@rand)
+        {
+            @append = 'a naughty, naughty girl.';
+        }
+    }
+
+    broadcast(color(c).@player.@message.@append);
     array @loc = ploc(@player);
     for (@x = -1, @x <= 1, @x++)
     {

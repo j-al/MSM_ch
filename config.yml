@@ -14,4 +14,5 @@
   # Developer IPs. IPs in this list will be able to use developer tools.
   devips:
     - 127.0.0.1
-
+  #
+  cynical: true
