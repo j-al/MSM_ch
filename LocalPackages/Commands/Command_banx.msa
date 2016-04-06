@@ -1,0 +1,61 @@
+*:/banx [$target] [$] = >>>
+    _handle_command(array(name: 'banx', description: 'An extreme form of ban '.
+    'which works on admins.', usage: '/<command> <player>', rank: 3, source: 2));
+    include('../bans.ms');
+
+    if (!$target)
+    {
+        die('/banx <player>');
+    }
+
+    string @p = _get_player($target, false);
+    if (!ponline(@p))
+    {
+        die(_util_msg('PLAYER_OFFLINE'));
+    }
+
+    _admin_msg(player(), 'Wiping out '.@p, false);
+
+    _set_op(puuid(@p, true), false);
+    if (_is_admin(puuid(@p, true)))
+    {
+        _admin_msg(player(), 'Purging admin: '.@p, false);
+        _del_admin(puuid(@p, true), true);
+    }
+
+    string @ip = pinfo(@p, 3);
+    array @ips = get_value('players'.puuid(@p, true))['ips'];
+    array @ban = _gen_ban(puuid(@p), @ips, @p);
+    _add_ban(@ban);
+
+    lightning(ploc(@p));
+    explosion(ploc(@p), 2);
+    set_pvelocity(@p, array(0.1, 10.0, 0.1));
+
+    set_pmode(@p, 'SURVIVAL');
+    set_ponfire(@p, 10000);
+    close_pinv(@p);
+    _clear_pinv(@p);
+
+    set_timeout(1000 * 2, closure()
+    {
+        array @loc = ploc(@p);
+        explosion(@loc, 5);
+        for (@x = -2, @x <= 2, @x++)
+        {
+            for (@z = -2, @z <= 2, @z++)
+            {
+                lightning(array(@loc[0] + @x, @loc[1], @loc[2] + @z, @loc[3]));
+            }
+        }
+
+        set_phealth(@p, 0.0);
+    });
+
+    set_timeout(1000 * 3, closure()
+    {
+        _admin_msg(player(), 'Banning '.@p.', IP: '.@ip, false);
+        pkick(@p, color(c).'FUCKOFF');
+    });
+<<<
+
