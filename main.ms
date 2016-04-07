@@ -49,6 +49,12 @@ void proc _load_config()
     }
 }
 
+void proc _load_blacklist()
+{
+    array @blacklistpath = yml_decode(read('blacklist.yml'));
+    store_value('server'.'blacklist', @blacklistpath);
+}
+
 void proc _on_enable(int @startup, double @version)
 {
     if (!file_size('log.txt'))
@@ -57,6 +63,7 @@ void proc _on_enable(int @startup, double @version)
     }
 
     _load_config();
+    _load_blacklist();
     _set_log_level(get_value('config'.'loglevel'));
     _start_listeners();
     store_value('server'.'startuptime', @startup);

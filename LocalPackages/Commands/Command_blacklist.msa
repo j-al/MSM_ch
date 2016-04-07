@@ -1,0 +1,48 @@
+*:/blacklist [$option] [$verbose] [$] = >>>
+    _handle_command(array(name: 'blacklist', description: 'View the blacklist'.
+    ', or reload it.', usage: '/<command> <list | reload> [-v]', rank: 2,
+    source: 0));
+    include('../../main.ms');
+
+    if (!$option)
+    {
+        die('/blacklist <list | reload>');
+    }
+
+    if (equals_ic($option, 'reload'))
+    {
+        _load_blacklist();
+        msg(color(b).'Blacklist reloaded.');
+    }
+    else if (!equals_ic($option, 'list'))
+    {
+        die('/blacklist <list | reload>');
+    }
+
+    array @blacklist = get_value('server'.'blacklist');
+    if (array_size(@blacklist) == 1)
+    {
+        msg(color(b).array_size(@blacklist).' blacklist entry.');
+    }
+    else
+    {
+        msg(color(b).array_size(@blacklist).' blacklist entries.');
+    }
+
+    if ($verbose)
+    {
+        if (_has_flag($verbose, 'v'))
+        {
+            array @keys = array_keys(@blacklist);
+            array @values = @blacklist;
+            array @output = array();
+            foreach (@n: @i in @blacklist)
+            {
+                @output[] = '\n- '.@n.': '.if(!@i, '{}', @i);
+            }
+
+            die(color(b).'Blacklist: '.array_implode(@output, ''));
+        }
+    }
+<<<
+

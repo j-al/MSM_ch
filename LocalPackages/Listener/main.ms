@@ -114,6 +114,47 @@ void proc _event_player_login()
             }
         }
 
+        # Blacklisted.
+        if (get_value('server'.'blacklist'))
+        {
+            array @host;
+            foreach (@n: @i in get_value('server'.'blacklist'))
+            {
+                @host = split('@', @n);
+
+                if (@host[0] == @name || @host[0] == @uuid)
+                {
+                    @result = 'KICK_BANNED';
+                    @kickmsg = color(c).'Your username is blacklisted.';
+                    break();
+                }
+
+                if (array_size(@host) != 0)
+                {
+                    if (@host[1] == @ip ||
+                        @host[1] == _wc_ip(@ip) ||
+                        @host[1] == _wc_ip(@ip, 1))
+                    {
+                        @result = 'KICK_BANNED';
+                        @kickmsg = color(c).'Your IP address is blacklisted.';
+                        break();
+                    }
+                }
+
+                if (@i)
+                {
+                    if (array_contains(@i, @ip) ||
+                        array_contains(@i, _wc_ip(@ip)) ||
+                        array_contains(@i, _wc_ip(@ip, 1)))
+                    {
+                        @result = 'KICK_BANNED';
+                        @kickmsg = color(c).'Your IP address is blacklisted.';
+                        break();
+                    }
+                }
+            }
+        }
+
         # Server is full.
         if (array_size(all_players()) == @maxplayers)
         {
@@ -184,6 +225,19 @@ void proc _event_player_join()
         string @name = @e['player'];
         string @ip = pinfo(@name, 3);
         string @uuid = puuid(@name, true);
+
+        # Check hostname.
+        foreach (@h: @i in get_value('server'.'blacklist'))
+        {
+            @host = split('@', @h);
+            if (@host[1] == pinfo(@name, 10))
+            {
+                export(@name.'blacklisted', true);
+                pkick(@name, color(c).'Your hostname is blacklisted.');
+                die();
+            }
+        }
+
         _log_msg('[PLAYER_JOIN] '.@name, 0);
 
         # First login
@@ -221,9 +275,14 @@ void proc _event_player_quit()
     bind (player_quit, null, array(priority: 'HIGH'), @e)
     {
         string @player = @e['player'];
+        modify_event('message', null);
+        if (import(@player.'blacklisted'))
+        {
+            die();
+        }
+
         _log_msg('[PLAYER_QUIT] '.@player, 0);
         broadcast(colorize('&7[&c-&7] &b'.@player.' &7disconnected.'));
-        modify_event('message', null);
 
 	if (_is_logged_in(puuid(@player, true)))
 	{
@@ -251,7 +310,6 @@ void proc _event_player_command()
     bind (player_command, null, array(priority: 'HIGH'), @e)
     {
         string @player = @e['player'];
-
 	if (_is_registered(puuid(@player, true)))
 	{
 	    if (!_is_logged_in(puuid(@player, true)) &&

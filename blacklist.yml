@@ -1,0 +1,27 @@
+# Blacklist. Used to selectively prevent usernames, hostnames,
+# IP addresses and IP ranges from connecting.
+#
+# The format is <username>@<hostname>: [<ip1>, <ip2>, <ip3>]
+#
+# The hostname can be omitted: User: [<ip1>, <ip2>].
+#
+# An IP address can be used in place of a hostname if only one IP
+# needs to be blacklisted.
+#
+# List multiple IPs after the colon, separated by commas:
+# BadUser@host.name: [1.2.3.4, 111.111.222.222, 112.112.*.*]
+# IP ranges are supported.
+#
+# Example list:
+#
+# BadPlayer:
+# Griefer@111.111.222.222:
+# Spambot@spamhost.name: [222.222.*.*]
+# IMFAgent@cia.gov: [10.0.0.1, 21.1.0.0]
+# 666@cultof.vi:
+#
+# Use [] if there are no entries.
+#
+
+[]
+
