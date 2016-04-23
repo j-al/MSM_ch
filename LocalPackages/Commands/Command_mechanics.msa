@@ -1,0 +1,47 @@
+*:/mechanics [$option] [$] = >>>
+    _handle_command(array(name: 'mechanics', description: 'Toggle various '.
+    'events.', usage: '/<command> <explosives | fire | firespread | '.
+    'fluidspread | water | lava | plants', rank: 2, source: 0));
+
+    if (!$option)
+    {
+        die('/<command> <explosives | fire | firespread | '.
+        'fluidspread | water | lava | plants');
+    }
+
+    switch (to_lower($option))
+    {
+        case 'explosives':
+            store_value('config'.'explosives', !get_value('config'.'explosives'));
+            die(color(b).'Explosives '.if(get_value('config'.'explosives'),
+            'en', 'dis').'abled.');
+        case 'fire':
+            store_value('config'.'fire', !get_value('config'.'fire'));
+            die(color(b).'Fire '.if(get_value('config'.'fire'),
+            'en', 'dis').'abled.');
+        case 'firespread':
+            store_value('config'.'firespread', !get_value('config'.'firespread'));
+            die(color(b).'Firespread '.if(get_value('config'.'firespread'),
+            'en', 'dis').'abled.');
+        case 'fluidspread':
+            store_value('config'.'fluidspread', !get_value('config'.'fluidspread'));
+            die(color(b).'Fluidspread '.if(get_value('config'.'fluidspread'),
+            'en', 'dis').'abled.');
+        case 'water':
+            store_value('config'.'water', !get_value('config'.'water'));
+            die(color(b).'Water '.if(get_value('config'.'water'),
+            'en', 'dis').'abled.');
+        case 'lava':
+            store_value('config'.'lava', !get_value('config'.'lava'));
+            die(color(b).'Lava '.if(get_value('config'.'lava'),
+            'en', 'dis').'abled.');
+        case 'plants':
+            store_value('config'.'plants', !get_value('config'.'plants'));
+            die(color(b).'Plants '.if(get_value('config'.'plants'),
+            'en', 'dis').'abled.');
+        default:
+            die('/<command> <explosives | fire | firespread | '.
+            'fluidspread | water | lava | plants');
+    }
+<<<
+

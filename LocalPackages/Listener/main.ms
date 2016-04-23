@@ -323,3 +323,175 @@ void proc _event_player_command()
     }
 }
 
+void proc _event_block_place()
+{
+    bind (block_place, null, array(priority: 'HIGH'), @e)
+    {
+        switch (data_name(@e['type']))
+        {
+            case 'Lava':
+                if (!get_value('config'.'lava'))
+                {
+                    tmsg(@e['player'], color(c).'Lava is currently disabled.');
+                    cancel();
+                }
+
+                set_inventory_item(puuid(@e['player']), pheld_slot(), null);
+            case 'Stationary Lava':
+                if (!get_value('config'.'lava'))
+                {
+                    tmsg(@e['player'], color(c).'Lava is currently disabled.');
+                    set_inventory_item(puuid(@e['player']), pheld_slot(), null);
+                    cancel();
+                }
+
+                set_inventory_item(puuid(@e['player']), pheld_slot(), null);
+            case 'Water':
+                if (!get_value('config'.'water'))
+                {
+                    tmsg(@e['player'], color(c).'Water is currently disabled.');
+                    set_inventory_item(puuid(@e['player']), pheld_slot(), null);
+                    cancel();
+                }
+
+                set_inventory_item(puuid(@e['player']), pheld_slot(), null);
+            case 'Stationary Water':
+                if (!get_value('config'.'water'))
+                {
+                    tmsg(@e['player'], color(c).'Water is currently disabled.');
+                    set_inventory_item(puuid(@e['player']), pheld_slot(), null);
+                    cancel();
+                }
+
+                set_inventory_item(puuid(@e['player']), pheld_slot(), null);
+            case 'Fire':
+                if (!get_value('config'.'fire'))
+                {
+                    tmsg(@e['player'], color(c).'Fire is currently disabled.');
+                    set_inventory_item(puuid(@e['player']), pheld_slot(), null);
+                    cancel();
+                }
+
+                set_inventory_item(puuid(@e['player']), pheld_slot(), null);
+        }
+    }
+}
+
+void proc _event_player_interact()
+{
+    bind (player_interact, null, array(priority: 'HIGH'), @e)
+    {
+        if (@e['action'] == 'right_click_block')
+        {
+            switch (data_name(pinv(@e['player'], null)))
+            {
+                case 'Lava Bucket':
+                    if (!get_value('config'.'water') &&
+                        !_is_admin(puuid(@e['player'], true)))
+                    {
+                        tmsg(@e['player'], color(c).'Lava is currently '.
+                        'disabled.');
+                        set_inventory_item(puuid(@e['player']), pheld_slot(), null);
+                        cancel();
+                    }
+                case 'Water Bucket':
+                    if (!get_value('config'.'water') &&
+                        !_is_admin(puuid(@e['player'], true)))
+                    {
+                        tmsg(@e['player'], color(c).'Water is currently '.
+                        'disabled.');
+                        set_inventory_item(puuid(@e['player']), pheld_slot(), null);
+                        cancel();
+                    }
+                case 'TNT Minecart':
+                    if (!get_value('config'.'explosives'))
+                    {
+                        tmsg(@e['player'], color(c).'Explosives are currently '.
+                        'disabled.');
+                         set_inventory_item(puuid(@e['player']), pheld_slot(), null);
+                        cancel();
+                    }
+            }
+        }
+    }
+}
+
+
+void proc _event_entity_explode()
+{
+    bind (entity_explode, null, array(priority: 'HIGH'), @e)
+    {
+        if (!get_value('config'.'explosives'))
+        {
+            cancel();
+        }
+
+        modify_event('yield', 0.0);
+    }
+}
+
+void proc _event_block_from_to()
+{
+    bind (block_from_to, null, array(priority: 'HIGH'), @e)
+    {
+        if (!get_value('config'.'fluidspread'))
+        {
+            cancel();
+        }
+    }
+}
+
+void proc _event_block_burn()
+{
+    bind (block_burn, null, array(priority: 'HIGH'), @e)
+    {
+        if (!get_value('config'.'fire'))
+        {
+            cancel();
+        }
+    }
+}
+
+void proc _event_block_ignite()
+{
+    bind (block_ignite, null, array(priority: 'HIGH'), @e)
+    {
+        if (@e['cause'] == 'SPREAD')
+        {
+            if (!get_value('config'.'firespread'))
+            {
+                cancel();
+            }
+        }
+        else
+        {
+            if (!get_value('config'.'fire'))
+            {
+                cancel();
+            }
+        }
+    }
+}
+
+void proc _event_block_grow()
+{
+    bind (block_grow, null, array(priority: 'NORMAL'), @e)
+    {
+        if (!get_value('config'.'plants'))
+        {
+            cancel();
+        }
+    }
+}
+
+void proc _event_tree_grow()
+{
+    bind (tree_grow, null, array(priority: 'NORMAL'), @e)
+    {
+        if (!get_value('config'.'plants'))
+        {
+            cancel();
+        }
+    }
+}
+
